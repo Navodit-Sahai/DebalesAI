@@ -1,6 +1,7 @@
 from langchain_core.messages import HumanMessage
 from .llm import get_llm
-from .rag import retrieve_context,store
+from .rag import retrieve_context
+from . import rag as _rag
 from .tools import search_web
 from .prompts import *
 
@@ -25,7 +26,7 @@ def run_agent(query, history=None):
     serp_results = ""
 
     if route in ["rag", "mixed"]:
-        rag_context = retrieve_context(query,store=store)
+        rag_context = retrieve_context(query, store=_rag.store)
 
     if route in ["serp", "mixed"]:
         serp_results = search_web(query)

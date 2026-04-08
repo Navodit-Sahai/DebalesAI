@@ -39,7 +39,7 @@ def scrape_urls(urls):
 
 
 
-def build_index(docs):
+def _create_store(docs):
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=800,
         chunk_overlap=100
@@ -56,8 +56,10 @@ def build_index(docs):
 
 
 
-def retrieve_context(query, store, k=3):
-    results = store.similarity_search(query, k=k)
+def retrieve_context(query, store=None, k=3):
+    import src.rag as _rag
+    _store = store if store is not None else _rag.store
+    results = _store.similarity_search(query, k=k)
 
     context = ""
     for i, doc in enumerate(results, 1):
@@ -69,7 +71,13 @@ def retrieve_context(query, store, k=3):
 
 #WORKFLOW
 docs = scrape_urls(URLS)
-store = build_index(docs)
+store = _create_store(docs)
+
+def build_index(force=False):
+    global store
+    if force:
+        store = _create_store(scrape_urls(URLS))
+    return store
 
 # query = "What does Debales AI do?"
 # context = retrieve_context(query, store)
