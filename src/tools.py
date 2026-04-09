@@ -30,25 +30,16 @@ def serp_search(query, k):
         return f"Error: {e}"
 
 
+
 def duck_search(query, k):
     try:
-        res = requests.get(
-            "https://api.duckduckgo.com/",
-            params={"q": query, "format": "json"},
-            timeout=10
-        )
-        data = res.json()
-
-        results = []
-        
-        if data.get("AbstractText"):
-            results.append("Summary: " + data["AbstractText"])
-
-        for item in data.get("RelatedTopics", [])[:k]:
-            if "Text" in item:
-                results.append(item["Text"])
-
-        return "\n\n".join(results) or "No results found."
+        from ddgs import DDGS  
+        with DDGS() as ddgs:
+            results = list(ddgs.text(query, max_results=k))
+        return "\n\n".join([
+            f"{i+1}. {r.get('title')}\n{r.get('href')}\n{r.get('body')}"
+            for i, r in enumerate(results)
+        ]) or "No results found."
 
     except Exception as e:
         return f"Error: {e}"
